@@ -1,32 +1,602 @@
 <!doctype html>
-<html lang="en">
+<html lang="sk">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Random Numbers</title>
+    <title>Bakalárska práca – Tempomapa hudobného záznamu</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121933;
+        --panel-2: #1a2345;
+        --text: #eef2ff;
+        --muted: #b8c1e0;
+        --accent: #7aa2ff;
+        --accent-2: #9b8cff;
+        --line: #2b3768;
+        --ok: #8ee3b5;
+        --warn: #ffd37a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.6;
+        background: linear-gradient(
+          180deg,
+          var(--bg),
+          #0f1630 35%,
+          #0b1020 100%
+        );
+        color: var(--text);
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .container {
+        width: min(1100px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        padding: 56px 0 28px;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(122, 162, 255, 0.18),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at top left,
+            rgba(155, 140, 255, 0.14),
+            transparent 24%
+          );
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 24px;
+        align-items: start;
+      }
+
+      .title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin: 0 0 14px;
+        line-height: 1.15;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1.05rem;
+        max-width: 780px;
+        margin: 0;
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 18px;
+      }
+
+      .label {
+        display: block;
+        font-size: 0.86rem;
+        color: var(--muted);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: rgba(11, 16, 32, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 12px 0;
+      }
+
+      .nav-wrap a {
+        color: var(--text);
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+      }
+
+      .nav-wrap a:hover {
+        background: rgba(122, 162, 255, 0.1);
+        border-color: var(--line);
+        text-decoration: none;
+      }
+
+      main {
+        padding: 28px 0 64px;
+      }
+
+      section {
+        margin: 0 0 22px;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: 1.55rem;
+      }
+
+      h3 {
+        margin: 18px 0 10px;
+        font-size: 1.12rem;
+      }
+
+      p,
+      li {
+        color: #e8ebfb;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(142, 227, 181, 0.12);
+        color: var(--ok);
+        border: 1px solid rgba(142, 227, 181, 0.35);
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      ul,
+      ol {
+        margin-top: 8px;
+        padding-left: 22px;
+      }
+
+      .resources li,
+      .journal li,
+      .outputs li {
+        margin-bottom: 10px;
+      }
+
+      .resource-type {
+        font-size: 0.84rem;
+        color: var(--warn);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .output-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .output-box {
+        border: 1px dashed #4e63a6;
+        border-radius: 14px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .placeholder {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        overflow: hidden;
+        border-radius: 12px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: rgba(122, 162, 255, 0.12);
+      }
+
+      footer {
+        padding: 24px 0 48px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .two-col,
+        .output-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>20 Random Numbers Greater Than 14</h1>
-    <ul id="randomNumbers"></ul>
-    <script>
-      // Function to generate random numbers greater than 14
-      function generateRandomNumbers() {
-        const numbers = [];
-        for (let i = 0; i < 20; i++) {
-          // Generate a random number greater than 14
-          const randomNum = Math.floor(Math.random() * (100 - 15)) + 15; // Range: 15 to 99
-          numbers.push(randomNum);
-        }
-        return numbers;
-      }
-      // Display the numbers in the HTML
-      const randomNumbersList = document.getElementById("randomNumbers");
-      const randomNumbers = generateRandomNumbers();
-      randomNumbers.forEach((num) => {
-        const listItem = document.createElement("li");
-        listItem.textContent = num;
-        randomNumbersList.appendChild(listItem);
-      });
-    </script>
+    <header>
+      <div class="container hero">
+        <div>
+          <div class="badge">Web k bakalárskej práci</div>
+          <h1 class="title">Tempomapa hudobného záznamu</h1>
+          <p class="subtitle">
+            Webová stránka dokumentujúca priebeh bakalárskej práce – zadanie,
+            zdroje, implementáciu, priebežné výstupy a týždenný denník.
+          </p>
+        </div>
+
+        <aside class="card">
+          <h2 style="margin-top: 0; font-size: 1.2rem">Základné informácie</h2>
+          <div class="info-grid">
+            <div>
+              <span class="label">Meno študenta</span>
+              <div>Timotej Peťko</div>
+            </div>
+            <div>
+              <span class="label">Študijný program</span>
+              <div>Aplikovaná informatika</div>
+            </div>
+            <div>
+              <span class="label">Vedúci práce</span>
+              <div>
+                <!-- DOPLŇ -->
+                Meno školiteľa
+              </div>
+            </div>
+            <div>
+              <span class="label">Kontakt</span>
+              <div>
+                <a href="mailto:student@example.com">student@example.com</a>
+              </div>
+            </div>
+            <div style="grid-column: 1 / -1">
+              <span class="label">Fakulta / škola</span>
+              <div>
+                <!-- DOPLŇ -->
+                Fakulta matematiky, fyziky a informatiky UK
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <nav>
+      <div class="container nav-wrap">
+        <a href="#o-praci">O práci</a>
+        <a href="#zadanie">Zadanie</a>
+        <a href="#zdroje">Zdroje</a>
+        <a href="#vystupy">Výstupy</a>
+        <a href="#dennik">Denník</a>
+        <a href="#kontakt">Kontakt</a>
+      </div>
+    </nav>
+
+    <main class="container">
+      <section id="o-praci" class="card">
+        <h2>O práci</h2>
+        <p>
+          Cieľom bakalárskej práce je implementovať program na zarovnanie dvoch
+          hudobných reprezentácií, napríklad partitúry a živej nahrávky tej
+          istej skladby. Úlohou systému je určiť, ktorý úsek jednej
+          reprezentácie zodpovedá rovnakému úseku druhej reprezentácie, a z
+          tohto zarovnania odvodiť tempomapu hudobného záznamu.
+        </p>
+        <p>
+          Praktická časť zahŕňa spracovanie symbolických dát (napr. MusicXML,
+          MIDI), extrakciu príznakov z audia, zarovnávanie sekvencií a
+          vizualizáciu výsledkov. Web priebežne zhromažďuje literatúru,
+          implementačné poznámky, screenshoty, ukážky kódu a týždenný denník
+          postupu.
+        </p>
+      </section>
+
+      <section id="zadanie" class="two-col">
+        <div class="card">
+          <h2>Zadanie – anotácia</h2>
+          <p>
+            <strong>Sem vlož anotáciu zo zadania v AISe.</strong>
+          </p>
+          <p class="muted">
+            Príklad: Práca sa zaoberá analýzou časového priebehu tempa v
+            hudobnom zázname a metódami zarovnania symbolickej reprezentácie
+            skladby s jej zvukovou realizáciou.
+          </p>
+        </div>
+
+        <div class="card">
+          <h2>Zadanie – cieľ práce</h2>
+          <p>
+            <strong>Sem vlož presné znenie cieľa práce z AISe.</strong>
+          </p>
+          <p class="muted">
+            Odporúčanie: ponechaj oficiálne znenie bez úprav a pod to môžeš
+            doplniť vlastné vysvetlenie implementačného plánu.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Aktuálny stav riešenia</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Oblasť</th>
+              <th>Stav</th>
+              <th>Poznámka</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Štúdium literatúry</td>
+              <td>Rozpracované</td>
+              <td>
+                Zozbierané základné články a knižné kapitoly k music alignment,
+                chroma a DTW.
+              </td>
+            </tr>
+            <tr>
+              <td>Baseline implementácia</td>
+              <td>Rozpracované</td>
+              <td>
+                Pipeline: audio → chroma, score → chroma, DTW, vizualizácie,
+                tempomapa.
+              </td>
+            </tr>
+            <tr>
+              <td>Vyhodnotenie</td>
+              <td>Príprava</td>
+              <td>
+                Plánované porovnanie jednoduchého baseline s vylepšeniami.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="zdroje" class="card">
+        <h2>Zdroje a odkazy</h2>
+        <p class="muted">
+          Sem patrí priebežne aktualizovaný zoznam článkov, kníh, technickej
+          dokumentácie, datasetov a užitočných nástrojov.
+        </p>
+        <ul class="resources">
+          <li>
+            <span class="resource-type">Článok</span>
+            Hu, N., Dannenberg, R. B., Tzanetakis, G. –
+            <em>Polyphonic Audio Matching and Alignment for Music Retrieval</em
+            >.
+          </li>
+          <li>
+            <span class="resource-type">Kniha</span>
+            Müller, M. – <em>Fundamentals of Music Processing</em>.
+          </li>
+          <li>
+            <span class="resource-type">Článok</span>
+            Cancino-Chacón, C. et al. –
+            <em>Partitura: A Python Package for Symbolic Music Processing</em>.
+          </li>
+          <li>
+            <span class="resource-type">Článok</span>
+            Peter, S. D. –
+            <em
+              >Online Symbolic Music Alignment with Offline Reinforcement
+              Learning</em
+            >.
+          </li>
+          <li>
+            <span class="resource-type">Článok</span>
+            Park, J. et al. –
+            <em
+              >Matchmaker: An Open-source Library for Real-time Piano Score
+              Following and Systematic Evaluation</em
+            >.
+          </li>
+          <li>
+            <span class="resource-type">Formát dát</span>
+            Foscarin, F. et al. –
+            <em
+              >The match file format: Encoding alignments between scores and
+              performances</em
+            >.
+          </li>
+          <li>
+            <span class="resource-type">Knižnica</span>
+            <a
+              href="https://github.com/CPJKU/partitura"
+              target="_blank"
+              rel="noreferrer"
+              >Partitura</a
+            >
+          </li>
+          <li>
+            <span class="resource-type">Knižnica</span>
+            <a href="https://librosa.org/" target="_blank" rel="noreferrer"
+              >librosa</a
+            >
+          </li>
+          <li>
+            <span class="resource-type">Knižnica</span>
+            <a href="https://numpy.org/" target="_blank" rel="noreferrer"
+              >NumPy</a
+            >,
+            <a href="https://matplotlib.org/" target="_blank" rel="noreferrer"
+              >Matplotlib</a
+            >
+          </li>
+        </ul>
+      </section>
+
+      <section id="vystupy" class="card">
+        <h2>Už napísané texty, screenshoty a zdrojové kódy</h2>
+        <div class="output-grid">
+          <div class="output-box">
+            <h3>Texty</h3>
+            <ul class="outputs">
+              <li>
+                <a href="#">Úvod</a>
+                <span class="muted">(doplň odkaz na PDF/DOCX)</span>
+              </li>
+              <li>
+                <a href="#">Metodológia</a>
+                <span class="muted">(doplň odkaz)</span>
+              </li>
+              <li>
+                <a href="#">Návrh baseline pipeline</a>
+                <span class="muted">(doplň odkaz)</span>
+              </li>
+            </ul>
+          </div>
+          <div class="output-box">
+            <h3>Screenshoty</h3>
+            <ul class="outputs">
+              <li><a href="#">Chroma z audia</a></li>
+              <li><a href="#">Chroma zo score</a></li>
+              <li><a href="#">Warpping path / DTW graf</a></li>
+              <li><a href="#">Tempomapa</a></li>
+            </ul>
+          </div>
+          <div class="output-box">
+            <h3>Zdrojové kódy</h3>
+            <ul class="outputs">
+              <li><a href="#">Notebook / baseline implementácia</a></li>
+              <li><a href="#">Skript na extrakciu chroma príznakov</a></li>
+              <li><a href="#">Skript na výpočet DTW a vizualizáciu</a></li>
+            </ul>
+          </div>
+          <div class="output-box">
+            <h3>Poznámky</h3>
+            <p class="placeholder">
+              Odkazy môžu smerovať na GitHub, Google Drive, PDF súbory, obrázky
+              alebo lokálne exporty, ktoré neskôr nahráš na web.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="dennik" class="card">
+        <h2>Denník práce</h2>
+        <p class="muted">
+          Táto sekcia má byť aktualizovaná každý týždeň. Každý záznam by mal
+          stručne obsahovať, čo bolo urobené, aký bol výsledok a čo je ďalší
+          krok.
+        </p>
+
+        <h3>Týždeň 1</h3>
+        <ul class="journal">
+          <li>
+            Spresnenie témy bakalárskej práce a definovanie cieľa implementácie.
+          </li>
+          <li>
+            Zhromaždenie základnej literatúry k score-performance alignment a
+            tempomape.
+          </li>
+          <li>
+            Príprava formátov vstupných dát: audio (.wav, .mp3), score
+            (.musicxml, .mid).
+          </li>
+        </ul>
+
+        <h3>Týždeň 2</h3>
+        <ul class="journal">
+          <li>Návrh jednoduchej baseline pipeline.</li>
+          <li>Rozhodnutie začať s chroma reprezentáciou pre audio aj score.</li>
+          <li>
+            Štúdium knižníc Partitura, librosa a možností spracovania
+            MusicXML/MIDI.
+          </li>
+        </ul>
+
+        <h3>Týždeň 3</h3>
+        <ul class="journal">
+          <li>Implementácia prvých častí pipeline a príprava vizualizácií.</li>
+          <li>
+            Testovanie zarovnania pomocou DTW a interpretácia warping path.
+          </li>
+          <li>Príprava podkladov pre odvodenie tempomapy zo zarovnania.</li>
+        </ul>
+
+        <p class="placeholder">
+          Ďalšie týždne už len kopíruj podľa rovnakého vzoru. Ideálne uvádzaj aj
+          dátumy, napr. <code>3. 3. 2026 – 9. 3. 2026</code>.
+        </p>
+      </section>
+
+      <section id="kontakt" class="card">
+        <h2>Kontakt</h2>
+        <p>
+          <strong>Študent:</strong> Timotej Peťko<br />
+          <strong>E-mail:</strong>
+          <a href="mailto:student@example.com">student@example.com</a><br />
+          <strong>Vedúci práce:</strong>
+          <!-- DOPLŇ -->
+          Meno školiteľa
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        Webová stránka k bakalárskej práci. Posledná aktualizácia:
+        <strong>marec 2026</strong>.
+      </div>
+    </footer>
   </body>
 </html>
